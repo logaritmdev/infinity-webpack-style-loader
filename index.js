@@ -552,7 +552,7 @@ module.exports = function(input) {
 			}
 
 			if (Object.keys(def.items).length === 0 &&
-				Object.keys(def.items).length === 0) {
+				Object.keys(def.rules).length === 0) {
 				continue;
 			}
 
