@@ -522,20 +522,19 @@ module.exports = function(input) {
 			throw e
 		}
 
-		var calls = []
+		var json = {}
 
 		for (var key in output) {
 
 			var def = output[key]
-
-			var items = JSON.stringify(def.items)
-			var rules = JSON.stringify(def.rules)
 
 			var parts = key.match(/([\.:]*[A-Za-z0-9_-]+)/g)
 
 			var style = parts[0]
 			var trait = ''
 			var state = ''
+
+			style = style.replace('.', '')
 
 			for (var i = 1; i < parts.length; i++) {
 
@@ -552,19 +551,28 @@ module.exports = function(input) {
 				}
 			}
 
-			style = style.replace('.', '')
+			if (Object.keys(def.items).length === 0 &&
+				Object.keys(def.items).length === 0) {
+				continue;
+			}
 
-			if (trait || state || items != '{}' || rules != '{}') {
-				calls.push(`__defineStyle('${style}', '${trait}', '${state}', ${items}, ${rules})`)
+			var current = json[key]
+			if (current) {
+				Object.assign(current.items, def.items)
+				Object.assign(current.rules, def.rules)
+				continue
+			}
+
+			json[key] = {
+				style: style,
+				trait: trait,
+				state: state,
+				items: def.items,
+				rules: def.rules
 			}
 		}
 
-		calls = calls.join('\n')
-
-		return `
-			;(function() {
-				${calls}
-			})();`
+		return Object.keys(json).length ? 'stylesheet.define(' + JSON.stringify(json, null, '\t') + ')' : ''
 	}
 
 	return null
